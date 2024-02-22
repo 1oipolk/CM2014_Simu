@@ -33,6 +33,7 @@ K_e = zeros(15);
 % Transformation matrix
 Angle = [beta, lambda, delta, 0];
 
+%calculate the global stiffness matrix
 for i = 0:3
     % Transformation matrix
     T = axisT(Angle(i+1));
@@ -42,19 +43,23 @@ for i = 0:3
     K_e = K_e + blkdiag(zeros(i*3), K, zeros((3-i)*3));
 end
 
-%
+%Because the first point is fixed
 K_e(:,1:3) = 0;
 K_e(1:3,:) = 0;
 
 % Global force vector
 F_e = [0; 0; zeros(11, 1); -20; 0];
 
-% Global deformation matrix
+% Solve Global deformation matrix
 D_e = K_e\F_e
 
+%% Plot
+
+%Initialization of the coordinates vector
 X_0 = [0]; Z_0 = [0];
 x_i = 0; z_i = 0;
 
+%calculate the original coordinates
 for i = 1:4
     x_i = x_i + l*cos(Angle(i));
     z_i = z_i + l*sin(Angle(i));
@@ -62,6 +67,7 @@ for i = 1:4
     Z_0 = [Z_0, z_i];
 end
 
+%calculate the deformed coordinates
 X_1 = X_0; Z_1 = Z_0;
 
 for i = 1:4
@@ -69,10 +75,13 @@ for i = 1:4
     Z_1(i+1) = Z_0(i+1) + D_e(3*i+2);
 end
 
+%plot the comparison
 plot(X_0, Z_0)
 hold on
 plot(X_1, Z_1)
-title("Change of the Beam")
+title("Original and Deformed Rod")
+xlabel('x')
+ylabel('z')
 legend(["Oringinal Plot", "With Deformation"], 'Location', 'southeast')
 
 function T_mat = axisT(angle)
